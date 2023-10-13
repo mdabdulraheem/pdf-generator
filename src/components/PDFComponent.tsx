@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import { API_ENDPOINT, DATA_KEY, getChartUrl } from "../utils/common";
 import { API_RESPONSE_TYPE } from "../types";
 import PDFRenderer from "./PDFRenderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 
 const PDFComponent = () => {
-    const [loading, setLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [image, setImage] = useState<null | string>(null);
 
     const getData = () => {
@@ -24,11 +25,11 @@ const PDFComponent = () => {
 
                 const chart: string = getChartUrl(labels, dataPoints);
                 setImage(chart);
-                setLoading(false);
+                setIsLoading(false);
             });
         } catch(err) {
             console.log("Error:: ", err);
-            setLoading(false);
+            setIsLoading(false);
             alert("An error occured, please retry.");
         }
     }
@@ -38,9 +39,16 @@ const PDFComponent = () => {
     }, [])
 
     return (
-        !loading
-        ? <PDFRenderer image={image} />
-        : null
+        isLoading
+        ? "Loading..."
+        : <PDFDownloadLink 
+                document={<PDFRenderer image={image} />} 
+                fileName='RealAssist-Property-Report.pdf'
+            >
+                {({ loading, url }) => 
+                    !loading && url ? <button>Print</button> : null
+                } 
+            </PDFDownloadLink>
     )
 }
 
